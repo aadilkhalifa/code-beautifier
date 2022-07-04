@@ -50,16 +50,20 @@ function sql(req, res){
 }
 app.post('/js',js);
 function js(req, res){
-    console.log('here i am');
-    var result = beautifyJavaScript(req.body.code);
-    console.log(result);
+    var result = beautifyJavaScript(req.body.code, req.body);
     res.send(result);
 }
 
 function beautifyJavaScript (source, options = {}) {
     const beautify = require('js-beautify').js_beautify;
-    var res = beautify(source);
-    console.log(res);
+    var new_options = {
+        'indent_size' : parseInt(options.indent_size),
+        'indent_with_tabs' : (options.indent_with_tabs === 'true'),
+        'end_with_newline' : (options.end_with_newline === 'true'),
+        'preserve_newlines' : (options.preserve_newlines === 'true'),
+    }
+    var res = beautify(source, new_options);
+    // console.log(res);
     return res;
    }
 function beautifySQL (source) {
@@ -79,7 +83,6 @@ function beautifyCSS (source) {
         return res;
    }
 async function beautifyJSON (source, options={}) {
-        delete options.code;
         var new_options = {
             'indent' : parseInt(options.indent),
             'expand' : (options.expand === 'true'),

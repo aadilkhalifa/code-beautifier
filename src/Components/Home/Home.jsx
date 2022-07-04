@@ -28,6 +28,12 @@ const indentoptions = [
     { value: '10', label: '10' },
   ];
 
+var js_options = {
+    'indent_size' : 2,
+    "indent_with_tabs": false,
+    "end_with_newline": false,
+    "preserve_newlines": true,
+}
 var json_options = {
     'indent' : 2,
     'expand' : true,
@@ -46,9 +52,11 @@ function Home() {
       }
 
     function handleSubmit() {
+        var current_options = js_options;
+        if(selectedLanguage === 'JSON') current_options = json_options;
         var data = qs.stringify({
             'code': code,
-            ...json_options,
+            ...current_options,
           });
         var route = 'js';
         if(selectedLanguage==='SQL') route = 'sql';
@@ -110,28 +118,11 @@ function Home() {
                     />
                 </div>
                 <div className="footer">
-                    <span className="button2" onClick={()=>{setCode('// this is text a=b\nvar a=10,b=0;')}}>Sample JS</span>
-                    <span className="button2" onClick={()=>{setCode('SELECT * FROM tbl')}}>Sample SQL</span>
-                    <span className="button2" onClick={()=>{setCode(`<section class="wrapper">
-    <ul>
-    <li
-    v-for="(item, i) in list"
-    :key="i"
-    >
-    <SomeVueComponent
-    size="1.5rem"
-    v-html="getIcon('tickIcon').html"
-    />
-    <span>{{ item }}</span>
-    </li>
-    </ul>
-    <a
-    class="some-link"
-    href="#"
-    >Link</a>
-    </section>`)}}>Sample HTML</span>
+                    <span className="button2" onClick={()=>{setCode(placeholders[selectedLanguage])}}>Sample</span>
+                    {/* <span className="button2" onClick={()=>{setCode('SELECT * FROM tbl')}}>Sample SQL</span>
+                    <span className="button2" onClick={()=>{setCode(placeholders['HTML'])}}>Sample HTML</span>
     <span className="button2" onClick={()=>{setCode('menu{color:red} navigation{background-color:#333}')}}>Sample CSS</span>
-    <span className="button2" onClick={()=>{setCode(placeholders['JSON'])}}>Sample JSON</span>
+    <span className="button2" onClick={()=>{setCode(placeholders['JSON'])}}>Sample JSON</span> */}
                     <span className="button2">Copy</span>
                     <span className="button" onClick={handleSubmit}>Beautify</span>
                 </div>
@@ -147,7 +138,34 @@ function Home() {
                         placeholder = {'Javascript'}
                     />
                     {
-                        selectedLanguage === 'JSON' ? 
+                        selectedLanguage === 'Javascript' ? 
+                        <>
+                            <h3>Indent size</h3>
+                            <Select
+                                options={indentoptions}
+                                onChange={(values) => {js_options = {...js_options, 'indent_size': values[0].value}}}
+                                placeholder = {'2'}
+                            />
+                            <h3>Indent with tabs</h3>
+                            <Select
+                                options={truefalseoptions}
+                                onChange={(values) => {js_options = {...js_options, 'indent_with_tabs': values[0].value}}}
+                                placeholder = {'False'}
+                            />
+                            <h3>End with newline</h3>
+                            <Select
+                                options={truefalseoptions}
+                                onChange={(values) => {js_options = {...js_options, 'end_with_newline': values[0].value}}}
+                                placeholder = {'False'}
+                            />
+                            <h3>Preserve newlines</h3>
+                            <Select
+                                options={truefalseoptions}
+                                onChange={(values) => {js_options = {...js_options, 'preserve_newlines': values[0].value}}}
+                                placeholder = {'True'}
+                            />
+                        </> 
+                        : selectedLanguage === 'JSON' ? 
                         <>
                             <h3>Indent</h3>
                             <Select
@@ -184,9 +202,26 @@ export default Home
 
 
 const placeholders = {
-    'Javascript': '// some comment',
+    'Javascript': '// this is text a=b\nvar a=10,b=0;',
     'SQL': 'SELECT * from table;',
-    'HTML': '<div><p>hello world</p></div>',
+    'HTML': `<section class="wrapper">
+    <ul>
+    <li
+    v-for="(item, i) in list"
+    :key="i"
+    >
+    <SomeVueComponent
+    size="1.5rem"
+    v-html="getIcon('tickIcon').html"
+    />
+    <span>{{ item }}</span>
+    </li>
+    </ul>
+    <a
+    class="some-link"
+    href="#"
+    >Link</a>
+    </section>`,
     'CSS': 'menu{color:red} navigation{background-color:#333}',
     'JSON': `{  "bool": true,
     "short array": [1, 2, 3],
