@@ -1,185 +1,96 @@
 import './Home.scss';
 
 import React, {useState, useEffect} from 'react'
-import { RiArrowLeftRightLine } from 'react-icons/ri';
+import Editor, { DiffEditor, useMonaco, loader } from "@monaco-editor/react";
+import Select from 'react-dropdown-select';
+// var beautify = require('js-beautify').js;
+
+var axios = require('axios');
+var qs = require('qs');
+
+const options = [
+    { value: 'Javascript', label: 'Javascript' },
+    { value: 'SQL', label: 'SQL' },
+  ];
 
 function Home() {
 
-    const [active, setActive] = useState(1);
-    const [inputValue, setInputValue] = useState(100.0);
-    const [outputValue, setOutputValue] = useState();
-    const [inputUnit, setInputUnit] = useState('m');
-    const [outputUnit, setOutputUnit] = useState('miles');
+    const [selectedLanguage, setSelectedLanguage] = useState('Javascript');
+    const [code, setCode] = useState('');
 
-    useEffect(() => {
-        if(active===1){
-            setInputUnit('m');
-            setOutputUnit('miles');
+    function handleEditorChange(value, event) {
+        setCode(value);
+      }
+
+    function handleSubmit() {
+        var data = qs.stringify({
+            'code': code
+          });
+          var config = {
+            method: 'post',
+            url: 'http://localhost:8000/',
+            mode: 'no-cors',
+            headers: { 
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data : data
+          };
+        axios(config)
+            .then(function (response) {
+                var res = JSON.stringify(response.data);
+                res = res.slice(1, -1);
+                res = res.replace(/\\n/g, "\n");
+                res = res.replace(/\\t/g, "\t");
+                res = res.replace(/\\b/g, "\b");
+                res = res.replace(/\\r/g, "\r");
+                setCode(res);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         }
-        if(active===2){
-            setInputUnit('c');
-            setOutputUnit('f');
-        }
-        if(active===3){
-            setInputUnit('inr');
-            setOutputUnit('usd');
-        }
-    }, [active]);
 
-    const heading = ['Distance', 'Temprature', 'Currency'];
-
-    useEffect(() => {
-        setOutputValue(inputValue);
-    }, [inputValue])
-
-    // useEffect(() => {console.log(inputUnit)}, [inputUnit]);
-
-    function calculate () {
-        if(active === 1){
-            const units = ['m', 'km', 'miles'];
-            const multiply1 = [1, 1000, 1609.34];
-            const multiply2 = [1, 0.001, 0.000621371];
-            var index1 = units.indexOf(inputUnit);
-            var index2 = units.indexOf(outputUnit);
-            if(index1 === index2) {
-                setOutputValue(inputValue);
-                return;
-            }
-            var temp = inputValue;
-            temp = temp * multiply1[index1];
-            temp = temp * multiply2[index2];
-            temp = parseFloat(temp).toFixed(4)
-            setOutputValue(temp);
-        } else if (active === 2){
-            const units = ['c', 'f'];
-            var index1 = units.indexOf(inputUnit);
-            var index2 = units.indexOf(outputUnit);
-            if(index1 === index2){
-                setOutputValue(inputValue);
-                return;
-            }
-            if(inputUnit === 'c' && outputUnit === 'f'){
-                var temp = inputValue * 9 / 5;
-                temp = temp + 32;
-                temp = parseFloat(temp).toFixed(4)
-                setOutputValue(temp);
-                return;
-            }
-            if(inputUnit === 'f' && outputUnit === 'c'){
-                var temp = inputValue - 32;
-                temp = temp * 5/9;
-                temp = parseFloat(temp).toFixed(4)
-                setOutputValue(temp);
-                return;
-            }
-        } else if(active === 3){
-            const units = ['inr', 'usd', 'euro', 'pound'];
-            const multiply1 = [1, 74.43, 84.83, 101.49];
-            const multiply2 = [1, 0.013, 0.012, 0.0099];
-            var index1 = units.indexOf(inputUnit);
-            var index2 = units.indexOf(outputUnit);
-            if(index1 === index2) {
-                setOutputValue(inputValue);
-                return;
-            }
-            var temp = inputValue;
-            temp = temp * multiply1[index1];
-            temp = temp * multiply2[index2];
-            temp = parseFloat(temp).toFixed(2)
-            setOutputValue(temp);
-        }
-    }
-
-    useEffect(() => {calculate();}, [inputValue, inputUnit, outputUnit]);
-
-    function swap() {
-        var t = inputUnit;
-        setInputUnit(outputUnit);
-        setOutputUnit(t);
-        return;
-    }
+    // useEffect(() => {
+    //     console.log(code);
+    //   }, [code])
 
     return (
         <div className="home-div">
-            <h1>{heading[active-1]} converter</h1>
-            <div className="card">
-                <div className="tabs">
-                    <div className={`tab ${active===1 ? `active` : ''}`} onClick={()=>setActive(1)}>
-                        <p>{heading[0]}</p>
-                    </div>
-                    <div className={`tab ${active===2 ? `active` : ''}`} onClick={()=>setActive(2)}>
-                        <p>{heading[1]}</p>
-                    </div>
-                    <div className={`tab ${active===3 ? `active` : ''}`} onClick={()=>setActive(3)}>
-                        <p>{heading[2]}</p>
-                    </div>
+            <div className="navbar">
+                <h2>{selectedLanguage} Beautifier</h2>
+            </div>
+            <div className="container">
+                <div className="left">
+                    <div className="editor">
+                    <Editor
+                        height="100%"
+                        width="100%"
+                        defaultLanguage="javascript"
+                        defaultValue="// some comment"
+                        theme="vs-dark"
+                        onChange={handleEditorChange}
+                        value={code}
+                    />
                 </div>
-                <div className="content">
-                    <div className="section1">
-                        <p>Enter input</p>
-                        <input type="number" value={inputValue} onChange={(e)=>setInputValue(e.target.value)} ></input>
-                    </div>
-                    <div className="section2">
-                        <select value={inputUnit} onChange={e=>setInputUnit(e.target.value)}>
-                            {
-                                active === 1
-                                ? <> 
-                                    <option value="m">meters</option>
-                                    <option value="km">kilometers</option>
-                                    <option value="miles">miles</option>
-                                </>
-                                : active === 2
-                                ? <> 
-                                    <option value="c">celcius</option>
-                                    <option value="f">fahrenheit</option>
-                                </>
-                                : active === 3
-                                ? <> 
-                                    <option value="inr">INR</option>
-                                    <option value="usd">USD</option>
-                                    <option value="euro">Euro</option>
-                                    <option value="pound">Pound</option>
-                                </>
-                                : null
-                            }
-                        </select>
-                    </div>
-                    <div className="section3" onClick={()=>swap()}>
-                        <RiArrowLeftRightLine size="20" color="white" />
-                    </div>
-                    <div className="section4">
-                    <select value={outputUnit} onChange={(e)=>setOutputUnit(e.target.value)}>
-                        {
-                            active === 1
-                            ? <> 
-                                <option value="m">meters</option>
-                                <option value="km">kilometers</option>
-                                <option value="miles">miles</option>
-                            </>
-                            : active === 2
-                            ? <> 
-                                <option value="c">celcius</option>
-                                <option value="f">fahrenheit</option>
-                            </>
-                            : active === 3
-                            ? <> 
-                                <option value="inr">INR</option>
-                                <option value="usd">USD</option>
-                                <option value="euro">Euro</option>
-                                <option value="pound">Pound</option>
-                            </>
-                            : null
-                        }
-                    </select>
-                    </div>
-                    <div className="section5">
-                        <p>Calculated output</p>
-                        <input type="number" value={outputValue}></input>
-                    </div>
+                <div className="footer">
+                    <span className="button2" onClick={()=>{setCode('// this is text a=b\nvar a=10,b=0;')}}>Sample</span>
+                    <span className="button2" onClick={()=>{setCode('var a=1,b= 2;')}}>Sample</span>
+                    <span className="button2">Copy</span>
+                    <span className="button" onClick={handleSubmit}>Beautify</span>
+                </div>
+                </div>
+                <div className="right">
+                    <h2>Settings</h2>
+                    <hr />
+                    <h3>Languages</h3>
+                    <Select
+                        options={options}
+                        onChange={(values) => {setSelectedLanguage(values[0].value)}}
+                    />
                 </div>
             </div>
         </div>
     )
 }
-
 export default Home
+
