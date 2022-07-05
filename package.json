@@ -1,7 +1,7 @@
 {
-  "name": "converter-app",
-  "homepage": "http://aadilkhalifa.github.io/unit-converter",
+  "name": "code-beautifier",
   "version": "0.1.0",
+  "homepage": "http://aadilkhalifa.github.io/code-beautifier",
   "private": true,
   "dependencies": {
     "@monaco-editor/react": "^4.4.5",
