@@ -77,6 +77,22 @@ function Home() {
         setCode(value);
       }
 
+    function handleSave(){
+        
+        const element = document.createElement("a");
+        const file = new Blob([code], {type: 'text/plain'});
+        element.href = URL.createObjectURL(file);
+        var extension = '.js';
+        if(selectedLanguage==='SQL') extension = '.sql';
+        if(selectedLanguage==='HTML') extension = '.html';
+        if(selectedLanguage==='CSS') extension = '.css';
+        if(selectedLanguage==='JSON') extension = '.json';
+        element.download = "code"+extension;
+        document.body.appendChild(element); // Required for this to work in FireFox
+        element.click();
+
+        toast.success('File saved.');
+      }
     function handleCopy(){
         navigator.clipboard.writeText(code);
         toast.success('Copied to clipboard');
@@ -157,6 +173,7 @@ function Home() {
                     <span className="button2" onClick={()=>{setCode(placeholders['HTML'])}}>Sample HTML</span>
     <span className="button2" onClick={()=>{setCode('menu{color:red} navigation{background-color:#333}')}}>Sample CSS</span>
     <span className="button2" onClick={()=>{setCode(placeholders['JSON'])}}>Sample JSON</span> */}
+                    <span className="button2" onClick={handleSave}>Save</span>
                     <span className="button2" onClick={handleCopy}>Copy</span>
                     <span className="button" onClick={handleSubmit}>Beautify</span>
                 </div>
