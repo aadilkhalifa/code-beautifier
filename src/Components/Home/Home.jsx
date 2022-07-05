@@ -4,6 +4,7 @@ import React, {useState, useEffect} from 'react'
 import Editor, { DiffEditor, useMonaco, loader } from "@monaco-editor/react";
 import Select from 'react-dropdown-select';
 // var beautify = require('js-beautify').js;
+import toast, { Toaster } from 'react-hot-toast';
 
 var axios = require('axios');
 var qs = require('qs');
@@ -74,6 +75,11 @@ function Home() {
 
     function handleEditorChange(value, event) {
         setCode(value);
+      }
+
+    function handleCopy(){
+        navigator.clipboard.writeText(code);
+        toast.success('Copied to clipboard');
       }
 
     function handleSubmit() {
@@ -151,7 +157,7 @@ function Home() {
                     <span className="button2" onClick={()=>{setCode(placeholders['HTML'])}}>Sample HTML</span>
     <span className="button2" onClick={()=>{setCode('menu{color:red} navigation{background-color:#333}')}}>Sample CSS</span>
     <span className="button2" onClick={()=>{setCode(placeholders['JSON'])}}>Sample JSON</span> */}
-                    <span className="button2">Copy</span>
+                    <span className="button2" onClick={handleCopy}>Copy</span>
                     <span className="button" onClick={handleSubmit}>Beautify</span>
                 </div>
                 </div>

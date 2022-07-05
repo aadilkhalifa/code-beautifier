@@ -89,7 +89,6 @@ function beautifyCSS (source, options = {}) {
             indent: (' '.repeat(parseInt(options.indent))),
             autosemicolon: (options.autosemicolon === 'true'),
         });
-        console.log(options);
         return res;
    }
 async function beautifyJSON (source, options={}) {
