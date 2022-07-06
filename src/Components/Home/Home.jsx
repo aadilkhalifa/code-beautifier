@@ -206,6 +206,14 @@ function Home() {
     axios(config)
       .then(function (response) {
         var res = JSON.stringify(response.data);
+        console.log(res);
+        if(selectedLanguage === 'JSON') res = JSON.stringify(response.data.data);
+        res = res.slice(1, -1);
+        res = res.replace(/\\n/g, "\n");
+        res = res.replace(/\\t/g, "\t");
+        res = res.replace(/\\b/g, "\b");
+        res = res.replace(/\\r/g, "\r");
+        res = res.replace(/\\"/g, '\"');
         setCode(res);
       })
       .catch(function (error) {
