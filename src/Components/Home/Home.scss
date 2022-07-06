@@ -65,6 +65,7 @@
             padding-bottom: 100px;
             box-sizing: border-box;
             max-height: 80vh;
+            overflow-x: hidden;
             @media only screen and (max-width: 600px) {
                 height: auto;
               }
